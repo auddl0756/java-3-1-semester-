@@ -1,0 +1,89 @@
+package termp0_4;
+
+import java.awt.Frame;
+import java.awt.Panel;
+import java.io.*;
+import java.net.*;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import java.awt.event.*;
+
+//class Clistener implements ItemListener{
+//	public void itemStateChanged(ItemEvent e) {
+//		
+//	}
+//}
+
+public class Echoclient2 {
+	public static void main(String[] args) {
+		Socket socket=null;
+		InputStream in=null;
+		OutputStream out=null;
+		BufferedReader reader=null;
+		PrintWriter writer=null;
+		BufferedReader stdin=null;
+		ObjectOutputStream oos=null;
+		ObjectInputStream ois=null;
+		try {
+			Calc x;
+			x=new Calc();
+			
+			socket=new Socket("127.0.0.1",7777);
+			System.out.println("서버에 접속 성공");
+			
+			in=socket.getInputStream();
+			out=socket.getOutputStream();
+			reader=new BufferedReader(new InputStreamReader(in));
+			writer=new PrintWriter(new OutputStreamWriter(out));
+			stdin=new BufferedReader(new InputStreamReader(System.in));
+			String line=null;
+			String echo=null;
+			
+			System.out.println("gui send");
+			
+			oos=new ObjectOutputStream(socket.getOutputStream());
+		
+			ois=new ObjectInputStream(socket.getInputStream());
+			
+			
+//			JButton b1=new JButton();
+//			x.add(b1);
+//			Clistener listener=new Clistener();
+			
+		//	b1.addItemListener(listener);
+		
+			System.out.println("Hello! enter BYE to exit");
+			System.out.print("Please input a keyword: ");
+			while(!(line=stdin.readLine()).equals("BYE")) {
+				writer.println(line);
+				writer.flush();
+				oos.writeObject(x.getField());
+				System.out.println("맵 전송 완료..");
+				echo=reader.readLine();
+				System.out.println("at Client: "+line);
+				System.out.println("from server: "+echo);
+				System.out.print("Please input a keyword: ");
+			}
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				stdin.close();
+				reader.close();
+				writer.close();
+				in.close();
+				
+				out.close();
+				socket.close();
+				System.out.println("종료");
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+	}
+}

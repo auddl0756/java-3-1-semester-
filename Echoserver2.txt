@@ -1,0 +1,98 @@
+package termp0_4;
+
+import java.net.*;
+import java.io.*;
+import java.awt.*;
+import javax.swing.*;
+import java.util.*;
+
+public class Echoserver2{
+	public static void main(String[] args) {
+		Socket socket1=null;
+		
+		ServerSocket server;
+		try {
+			server = server=new ServerSocket(7777);
+		
+			System.out.println("서버:클라이언트 요청 대기 중... ...");
+			while(true) {
+				socket1=server.accept();
+				System.out.println("서버: accpeted");
+				Runnable temp_thread = new Server_service(socket1);
+				Thread server_thread = new Thread(temp_thread);
+				server_thread.start();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+}
+class Server_service implements Runnable{
+	Socket socket;
+	Server_service(Socket incoming){
+		socket = incoming;
+	}
+	public void run() {
+		InputStream in=null;
+		OutputStream out=null;
+		BufferedReader reader=null;
+		ObjectOutputStream oos=null;
+		ObjectInputStream ois=null;
+		PrintWriter writer=null;
+		Map <String,String> getmap=new HashMap<>();
+		Set<Map.Entry<String, String>> getset;
+		
+		try {
+		
+			in=socket.getInputStream();
+			out=socket.getOutputStream();
+			reader=new BufferedReader(new InputStreamReader(in));
+			writer=new PrintWriter(new OutputStreamWriter(out));
+			
+			ois=new ObjectInputStream(socket.getInputStream());
+			oos=new ObjectOutputStream(socket.getOutputStream());
+		
+			String line=null;
+			
+			
+			
+			writer.println("HELLO! Enter BYE to exit");
+			while(!(line=reader.readLine()).equals("BYE")) {
+				
+				System.out.println("Received: "+line);
+				writer.println(line);
+				
+				writer.flush();
+				
+				getmap=(Map<String,String>)ois.readObject();
+				
+				getset=getmap.entrySet();
+				ArrayList<String> list=new ArrayList<>();
+				for(Map.Entry<String, String> t:getset) {
+					System.out.println(t.getKey()+" ="+t.getValue());
+				}
+				
+				System.out.println("맵 수신완료");
+				
+			
+				
+				
+			}
+			writer.println("server close()");			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				//reader.close();
+				writer.close();
+				in.close();
+				out.close();
+				socket.close();
+		
+				System.out.println("종료");
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+}
